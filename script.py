@@ -40,9 +40,23 @@ def upload_file(api_token, channel_id, file_path, initial_comment=''):
         print(f"Error uploading file: {response.text}")
         return False
 
+
 def get_pr_details(owner, repo, pr_number):
+    """
+    Get details of a pull request from a GitHub repository.
+
+    Args:
+        owner (str): Owner of the GitHub repository.
+        repo (str): Name of the GitHub repository.
+        pr_number (int): Pull request number.
+
+    Returns:
+        dict or None: A dictionary containing details of the pull request if successful,
+                      None otherwise.
+    """
     base_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/files"
     response = requests.get(base_url)
+
     if response.status_code == 200:
         pr_details = response.json()
         return pr_details
@@ -52,8 +66,8 @@ def get_pr_details(owner, repo, pr_number):
 
 def notify_on_slack():
     pr_number =  sys.argv[1]
-    owner = "gautamgambhir97"
-    repo = "integrations-examples"
+    owner = "fetchai"
+    repo = "uAgents"
     pr_details = get_pr_details(owner, repo, pr_number)
     matching_files = [file['filename'] for file in pr_details if 'blog.md' in file['filename']]
     if matching_files:
@@ -67,5 +81,5 @@ if __name__ == '__main__':
     channel_id= sys.argv[3]
     path_response=notify_on_slack()
     file_path=path_response
-    initial_comment = 'Integration is merged sucessfully here is a file for you!'
+    initial_comment = 'The integration has been successfully merged. Below is the content of the Markdown file associated with this integration.'
     upload_file(slack_token, channel_id, file_path, initial_comment)
